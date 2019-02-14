@@ -32,27 +32,6 @@ struct FnBuilder {
     void:           bool,
 }
 
-// impl Default for FnBuilder {
-//     fn default() -> Self {
-//         Self {
-//             program:        String::default(),
-//             cmd:            String::default(),
-//             args:           Vec::default(),
-//             envs:           Vec::default(),
-//             panic:          true,
-//             panic_on_parse: true,
-//             ignore_result:  false,
-//             iterator:       false,
-//         }
-//     }
-// }
-
-// pub enum Error {
-
-// }
-
-// fn run_shell(args: , envs: ,
-
 impl FnBuilder {
     pub fn new() -> Self {
         Self::default()
