@@ -9,7 +9,8 @@ It allows you to wrap a script in any language with strongly typed functions. Th
 ### Basic
 
 ```rust
-use shellfn::shellfn;
+use shellfn::shell;
+use std::error::Error;
 
 #[shell]
 fn list_modified(dir: &str) -> Result<impl Iterator<Item=String>, Box<Error>> { r#"

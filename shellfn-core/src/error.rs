@@ -1,7 +1,7 @@
-use std::string::FromUtf8Error;
+use std::error::Error as StdError;
 use std::io;
 use std::process::Output;
-use std::error::Error as StdError;
+use std::string::FromUtf8Error;
 
 #[derive(Debug)]
 pub enum Error<PE: StdError> {

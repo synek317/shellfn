@@ -2,8 +2,8 @@
 extern crate shellfn;
 
 use shellfn::shell;
-use std::fmt::Display;
 use std::error::Error as StdError;
+use std::fmt::Display;
 
 type BoxedError = Box<StdError>;
 

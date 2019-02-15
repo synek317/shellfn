@@ -1,8 +1,8 @@
 [package]
-name = "shellfn-core"
-version = "0.1.0"
+name    = "shellfn-core"
+version = "0.0.1"
 authors = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 edition = "2018"
 
 [dependencies]
-itertools = "*"
+itertools = "0.8.0"

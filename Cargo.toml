@@ -1,15 +1,15 @@
 [package]
-name = "shellfn"
-version = "0.0.1"
-authors = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
-description = "Provides #[shell(...)] procedural macro attribute for using shell scripts in rust easily and safely"
-keywords = []
-categories = ["development-tools"]
-readme = "README.md"
-license = "MIT"
-repository = "https://github.com/synek317/shellfn"
+name          = "shellfn"
+version       = "0.0.1"
+authors       = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
+description   = "Attribute-like proc macro which reduces the amount of code required to call shell commands and parse the results"
+keywords      = ["shell", "command", "bash"]
+categories    = ["command-line-interface", "os"]
+readme        = "README.md"
+license       = "MIT"
+repository    = "https://github.com/synek317/shellfn"
 documentation = "https://docs.rs/shellfn"
-edition = "2018"
+edition       = "2018"
 
 [badges]
 travis-ci = { repository = "synek317/shellfn", branch = "master" }

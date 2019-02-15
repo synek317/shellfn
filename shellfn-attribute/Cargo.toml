@@ -1,18 +1,18 @@
 [package]
-name = "shellfn-attribute"
-version = "0.1.0"
+name    = "shellfn-attribute"
+version = "0.0.1"
 authors = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 edition = "2018"
 
 [lib]
-doctest = false
+doctest    = false
 proc-macro = true
-path = "src/lib.rs"
+path       = "src/lib.rs"
 
 [dependencies]
-syn = { version = "*", features = ["full", "extra-traits"] }
-quote = "*"
-proc-macro2 = "*"
-darling = "*"
-shellwords = "*"
+syn          = { version = "0.15.26", features = ["full", "extra-traits"] }
+quote        = "0.6.11"
+proc-macro2  = "0.4.27"
+darling      = "0.8.3"
+shellwords   = "1.0.0"
 shellfn-core = { path = "../shellfn-core" }
