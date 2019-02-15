@@ -1,4 +1,3 @@
-#![feature(type_ascription)]
 extern crate shellfn;
 
 use shellfn::shell;
