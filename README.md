@@ -1,8 +1,8 @@
 # shellfn
 
-This is rust attribute-like proc macro which reduces amount of code required to call shell command and parse results.
+This is a rust attribute-like proc macro which reduces the amount of code required to call shell commands and parse the results.
 
-It allows to wrap script in any language with strongly typed function. The function's arguments are set as env variables and the result of the script is parsed either as a value or as an iterator.
+It allows you to wrap a script in any language with strongly typed functions. The function's arguments are set as env variables and the result of the script is parsed either as a value or as an iterator.
 
 ## Examples
 
@@ -39,10 +39,10 @@ print(json.dumps(obj, indent=indent, sort_keys=sort_keys))
 
 ## Usage
 
-You can use `#[shell]` attribute on functions that have:
-- body containing only one expression - string literal with script to execute
-- parameters that have method `.to_string()` defined
-- result that is either `void`, `T`, `Result<T, E>`, `impl Iterator<Item=T>`, `Result<impl Iterator<Item=T>>` or `Result<impl Iterator<Item=Result<T, E>>>` with constrains:
+You can use the `#[shell]` attribute on functions that have:
+- a body containing only one expression - a string literal representing the script to execute
+- types that implement the `.to_string()` method
+- return a value that is either `void`, `T`, `Result<T, E>`, `impl Iterator<Item=T>`, `Result<impl Iterator<Item=T>>` or `Result<impl Iterator<Item=Result<T, E>>>` with constrains:
 ```
 T: FromStr,
 <T as FromStr>::Err: StdError,
@@ -51,23 +51,23 @@ E: From<shellfn::Error<<T as FromStr>::Err>>,
 
 - ## Details
 
-`#[shell]` attribute does the following:
+The `#[shell]` attribute does the following:
 
-1. Sets every argument as env variable
-2. Creates shell command
+1. Sets every argument as an env variable
+2. Runs a shell command
 3. Launches the command using `std::process::Command`
-4. Depending on the return type, parses the output
+4. Depending on the return type, it may parse the output
 
 Most of the steps can be adjusted:
-- default command is `bash -c`. You can change it with `cmd` parameter:
+- the default command is `bash -c`. You can change it using the `cmd` parameter:
 ```rust
 #[shell(cmd = "python -c")]
 ```
-- by default, the script is added as a last argument. You can change it using special variable `PROGRAM` in the `cmd` parameter:
+- by default, the script is added as the last argument. You can change it using the special variable `PROGRAM` in the `cmd` parameter:
 ```rust
 #[shell(cmd = "bash -c PROGRAM -i")]
 ```
-- if the return type is not wrapping some part of the result in `Result`, you may decide to suppress panics by adding `no_panic` flag:
+- if the return type is not wrapping some part of the result in `Result`, you may decide to suppress panics by adding the `no_panic` flag:
 ```rust
 #[shell(no_panic)]
 ```
@@ -105,9 +105,9 @@ Glossary:
 
 Notes:
 
-1. `no_panic` attribute makes no difference
-2. It reads whole stdout first before any failure
-3. It yields all items until error exit code occurs
+1. The `no_panic` attribute makes no difference
+2. It reads all of stdout before producing any failures
+3. It yields all items until it encounters an error or an exit code
 
 # Contribution
 
