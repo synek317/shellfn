@@ -1,6 +1,6 @@
 [package]
 name        = "shellfn-attribute"
-version     = "0.1.0"
+version     = "0.1.1"
 authors     = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 description = "Attribute macro for `shellfn` crate"
 license     = "MIT"
@@ -17,4 +17,4 @@ quote        = "0.6.11"
 proc-macro2  = "0.4.27"
 darling      = "0.8.3"
 shellwords   = "1.0.0"
-shellfn-core = { path = "../shellfn-core", version = "0.1.0" }
+shellfn-core = { path = "../shellfn-core", version = "0.1.1" }
