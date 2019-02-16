@@ -9,6 +9,23 @@ use std::str::FromStr;
 
 const PANIC_MSG: &'static str = "Shell execution failed";
 
+/// Executes command with args and environment variables, ignores output
+/// * On invalid command: do nothing
+/// * On error exit code: do nothing
+/// * On parsing failure: N/A
+/// * Possible errors: N/A
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+///
+/// #[shell(no_panic)]
+/// fn command() {
+///     "echo Hello, world"
+/// }
+///
+/// command()
+/// ```
 pub fn execute_void_nopanic<TArg, TEnvKey, TEnvVal>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -21,6 +38,23 @@ pub fn execute_void_nopanic<TArg, TEnvKey, TEnvVal>(
     let _ = spawn(cmd, args, envs).and_then(Child::wait_with_output);
 }
 
+/// Executes command with args and environment variables, ignores output
+/// * On invalid command: panic
+/// * On error exit code: panic
+/// * On parsing failure: N/A
+/// * Possible errors: N/A
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+///
+/// #[shell]
+/// fn command() {
+///     "echo Hello, world"
+/// }
+///
+/// command()
+/// ```
 pub fn execute_void_panic<TArg, TEnvKey, TEnvVal>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -39,6 +73,24 @@ pub fn execute_void_panic<TArg, TEnvKey, TEnvVal>(
     }
 }
 
+/// Executes command with args and environment variables, parses output
+/// * On invalid command: return error
+/// * On error exit code: return error
+/// * On parsing failure: return error
+/// * Possible errors: ProcessNotSpawned, WaitFailed, ProcessFailed, NonUtf8Stdout, ParsingError
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell]
+/// fn command() -> Result<u32, Box<Error>> {
+///     "echo -n 42"
+/// }
+///
+/// assert_eq!(42, command().unwrap())
+/// ```
 pub fn execute_parse_result<T, TArg, TEnvKey, TEnvVal, TError>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -65,6 +117,23 @@ where
         .and_then(|s| s.parse().map_err(Error::ParsingError).map_err(Into::into))
 }
 
+/// Executes command with args and environment variables, parses output
+/// * On invalid command: panic
+/// * On error exit code: panic
+/// * On parsing failure: panic
+/// * Possible errors: N/A
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+///
+/// #[shell]
+/// fn command() -> u32 {
+///     "echo -n 42"
+/// }
+///
+/// assert_eq!(42, command())
+/// ```
 pub fn execute_parse_panic<T, TArg, TEnvKey, TEnvVal>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -92,6 +161,24 @@ where
         .expect(PANIC_MSG)
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: return error
+/// * On error exit code: break iterator
+/// * On parsing failure: yield error item
+/// * Possible errors: ProcessNotSpawned, StdoutUnreadable (item error), ParsingError (item error)
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell]
+/// fn command() -> Result<impl Iterator<Item = Result<u32, Box<Error + 'static>>>, Box<Error>> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().unwrap().map(Result::unwrap).collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_result_result<T, TArg, TEnvKey, TEnvVal, TOuterError, TInnerError>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -120,6 +207,24 @@ where
     }))
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: panic
+/// * On error exit code: break iterator
+/// * On parsing failure: panic
+/// * Possible errors: N/A
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell]
+/// fn command() -> impl Iterator<Item = u32> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_panic_panic<T, TArg, TEnvKey, TEnvVal>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -150,6 +255,24 @@ where
         }))
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: panic
+/// * On error exit code: break iterator
+/// * On parsing failure: yield error item
+/// * Possible errors: StdoutUnreadable (item error), ParsingError (item error)
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell]
+/// fn command() -> impl Iterator<Item = Result<u32, Box<Error + 'static>>> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().map(Result::unwrap).collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_panic_result<T, TArg, TEnvKey, TEnvVal, TError>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -185,6 +308,24 @@ where
         }))
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: return empty iterator
+/// * On error exit code: break iterator
+/// * On parsing failure: yield error item
+/// * Possible errors: StdoutUnreadable (item error), ParsingError (item error)
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell(no_panic)]
+/// fn command() -> impl Iterator<Item = Result<u32, Box<Error + 'static>>> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().map(Result::unwrap).collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_nopanic_result<T, TArg, TEnvKey, TEnvVal, TError>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -219,6 +360,24 @@ where
         )
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: return emoty iterator
+/// * On error exit code: break iterator
+/// * On parsing failure: skip item
+/// * Possible errors: N/A
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell(no_panic)]
+/// fn command() -> impl Iterator<Item = u32> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_nopanic_nopanic<T, TArg, TEnvKey, TEnvVal>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -244,6 +403,24 @@ where
         )
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: return error
+/// * On error exit code: break iterator
+/// * On parsing failure: panic
+/// * Possible errors: ProcessNotSpawned
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell]
+/// fn command() -> Result<impl Iterator<Item = u32>, Box<Error>> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().unwrap().collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_result_panic<T, TArg, TEnvKey, TEnvVal, TError>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
@@ -267,6 +444,24 @@ where
     }))
 }
 
+/// Executes command with args and environment variables, parses output line by line
+/// * On invalid command: return error
+/// * On error exit code: break iterator
+/// * On parsing failure: skip item
+/// * Possible errors: ProcessNotSpawned
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+/// use std::error::Error;
+///
+/// #[shell(no_panic)]
+/// fn command() -> Result<impl Iterator<Item = u32>, Box<Error>> {
+///     "echo 1; echo 2; echo 3"
+/// }
+///
+/// assert_eq!(vec![1, 2, 3], command().unwrap().collect::<Vec<_>>())
+/// ```
 pub fn execute_iter_result_nopanic<T, TArg, TEnvKey, TEnvVal, TError>(
     cmd:  impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,

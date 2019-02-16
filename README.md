@@ -1,8 +1,16 @@
-# shellfn
+# Overview
 
 This is a rust attribute-like proc macro which reduces the amount of code required to call shell commands and parse the results.
 
 It allows you to wrap a script in any language with strongly typed functions. The function's arguments are set as env variables and the result of the script is parsed either as a value or as an iterator.
+
+[![Crates.io](https://img.shields.io/crates/v/shellfn.svg)](https://crates.io/crates/shellfn)
+[![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kbknapp/clap-rs/blob/master/LICENSE-MIT)
+[![Build Status](https://travis-ci.org/synek317/shellfn.svg?branch=master)](https://travis-ci.org/synek317/shellfn)
+
+[Documentation](https://docs.rs/shellfn/)
+
+[Repository](https://github.com/synek317/shellfn)
 
 ## Examples
 

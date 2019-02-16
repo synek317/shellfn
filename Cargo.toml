@@ -11,6 +11,12 @@ repository    = "https://github.com/synek317/shellfn"
 documentation = "https://docs.rs/shellfn"
 edition       = "2018"
 
+[workspace]
+members = [
+    "shellfn-attribute",
+    "shellfn-core"
+]
+
 [badges]
 travis-ci = { repository = "synek317/shellfn", branch = "master" }
 
