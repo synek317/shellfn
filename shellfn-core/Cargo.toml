@@ -1,6 +1,6 @@
 [package]
 name    = "shellfn-core"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 edition = "2018"
 

@@ -1,6 +1,6 @@
 [package]
 name          = "shellfn"
-version       = "0.0.1"
+version       = "0.1.0"
 authors       = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 description   = "Attribute-like proc macro which reduces the amount of code required to call shell commands and parse the results"
 keywords      = ["shell", "command", "bash"]
