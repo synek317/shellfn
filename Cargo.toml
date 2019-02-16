@@ -25,5 +25,5 @@ doctest = false
 path = "src/lib.rs"
 
 [dependencies]
-shellfn-attribute = { path = "./shellfn-attribute" }
-shellfn-core      = { path = "./shellfn-core" }
+shellfn-attribute = { path = "./shellfn-attribute", version = "0.1.0" }
+shellfn-core      = { path = "./shellfn-core", version = "0.1.0" }

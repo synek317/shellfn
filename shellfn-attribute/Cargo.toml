@@ -15,4 +15,4 @@ quote        = "0.6.11"
 proc-macro2  = "0.4.27"
 darling      = "0.8.3"
 shellwords   = "1.0.0"
-shellfn-core = { path = "../shellfn-core" }
+shellfn-core = { path = "../shellfn-core", version = "0.1.0" }
