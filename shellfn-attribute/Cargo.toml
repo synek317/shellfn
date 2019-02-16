@@ -2,7 +2,7 @@
 name        = "shellfn-attribute"
 version     = "0.1.0"
 authors     = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
-description = "Core functions for `shellfn` crate"
+description = "Attribute macro for `shellfn` crate"
 license     = "MIT"
 edition     = "2018"
 
