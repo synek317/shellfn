@@ -127,13 +127,51 @@ impl BlockBuilder {
     }
 
     pub fn build(mut self) -> TokenStream2 {
-        self.add_program_to_args();
+        if self.program.len() > 0 {
+            self.add_program_to_args();
+        } else {
+            self.args.retain(|a| a != PROGRAM);
+        }
 
         let execute_fn = self.select_execute_fn();
+        let envs = self.envs;
         let cmd = self.cmd;
-        let args = self.args;
-        let env_names = self.envs.iter().map(|s| s.to_uppercase());
-        let env_vals = self.envs.iter().map(|e| Ident::new(&e, Span::call_site()));
+        let env_names = envs.iter().map(|s| s.to_uppercase()).collect::<Vec<_>>();
+        let env_vals = envs
+            .iter()
+            .map(|e| Ident::new(&e, Span::call_site()))
+            .collect::<Vec<_>>();
+
+        // replace envs in args, e.g. for
+        // #[shell(cmd = "python -m $MODULE -v"
+        // fn run(module: &str)
+        // it prepares following vec:
+        // [
+        //   "-m".to_string(),
+        //   "$MODULE".replace("$MODULE", module),
+        //   "-v".to_string()
+        // ]
+        let args = self.args
+            .into_iter()
+            .map(|arg|
+                env_names
+                    .iter()
+                    .enumerate()
+                    .fold(
+                        quote!{ #arg },
+                        |arg_tokens, (i, var_name)| {
+                            let pattern = format!("${}", var_name);
+
+                            if arg.contains(&pattern) {
+                                quote!{ #arg_tokens.replace(#pattern, &envs[#i].1) }
+                            } else {
+                                arg_tokens
+                            }
+                        }
+                    )
+            )
+            .map(|tokens| quote! { #tokens.to_string() })
+            .collect::<Vec<_>>();
 
         // type annotation for `let envs: ...` needed because it sometimes maybe an empty vec and Command::envs is generic
         // maybe there is better way to satisfy impl IntoIterator<Item=(impl AsRef<OsStr>, impl AsRef<OsStr>)> required by envs?
@@ -142,7 +180,7 @@ impl BlockBuilder {
         quote! { {
             use shellfn;
             let envs: Vec<(&str, String)> = vec![#((#env_names, #env_vals.to_string())),*];
-            let args = vec![#(#args),*];
+            let args: Vec<String> = vec![#(#args),*];
 
             #execute_fn(#cmd, args, envs)
         } }

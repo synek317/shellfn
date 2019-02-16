@@ -76,6 +76,11 @@ Most of the steps can be adjusted:
 ```rust
 #[shell(cmd = "bash -c PROGRAM -i")]
 ```
+- you can use env variables set from function's arguments in the `cmd` parameters in the same way as in the script:
+```rust
+#[shell(cmd = "python -m $MODULE")]
+fn run(module: &str)
+```
 - if the return type is not wrapping some part of the result in `Result`, you may decide to suppress panics by adding the `no_panic` flag:
 ```rust
 #[shell(no_panic)]

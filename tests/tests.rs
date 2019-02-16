@@ -54,6 +54,14 @@ fn sets_env_vars() {
 }
 
 #[test]
+fn replaces_env_vars_in_args() {
+    #[shell(cmd = "bash -c \"echo -n Hello, $WORLD! The answer is $FOO\"")]
+    fn subject(world: impl Display, foo: u32) -> String { "" }
+
+    assert_eq!("Hello, world! The answer is 42", subject("world", 42));
+}
+
+#[test]
 fn parses_return_value() {
     #[shell]
     fn join(x: u32, y: u32) -> u32 { r#"
