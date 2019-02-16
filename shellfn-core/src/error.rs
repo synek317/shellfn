@@ -13,6 +13,10 @@ pub enum Error<PE: StdError> {
     ProcessFailed(Output),
 }
 
+// TODO: replace with `!` after stabilization
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum NeverError {}
+
 impl<PE: StdError> StdError for Error<PE> {
     fn description(&self) -> &str {
         match self {
@@ -40,5 +44,17 @@ impl<PE: StdError> StdError for Error<PE> {
 impl<PE: StdError> std::fmt::Display for Error<PE> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.description())
+    }
+}
+
+impl StdError for NeverError {
+    fn description(&self) -> &str { "" }
+
+    fn cause(&self) -> Option<&StdError> { None }
+}
+
+impl std::fmt::Display for NeverError {
+    fn fmt(&self, _f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        Ok(())
     }
 }

@@ -92,6 +92,10 @@
 //! |-----------------------------------------------|----------|---------------|--------------------|---------------|-------|
 //! |                                               |          | -             | panic              | panic         |       |
 //! |                                               | no_panic | -             | nothing            | nothing       |       |
+//! | ()                                            |          | -             | panic              | panic         |       |
+//! | ()                                            | no_panic | -             | nothing            | nothing       |       |
+//! | Result<(), E>                                 |          | -             | error              | error         |       |
+//! | Result<(), E>                                 | no_panic | -             | error              | error         | 1     |
 //! | T                                             |          | panic         | panic              | panic         | 2     |
 //! | T                                             | no_panic | panic         | panic              | panic         | 1,2   |
 //! | Result<T, E>                                  |          | error         | error              | error         | 2     |

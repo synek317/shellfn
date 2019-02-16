@@ -9,6 +9,10 @@ fn run(module: &str) -> Result<String, Box<Error>> {
     ""
 }
 ```
+- handle new return types:
+  * `()` (same as no return type)
+  * `()` + no_panic (same as no return type)
+  * `Result<(), E>`
 
 ## version 0.1.0 - 2019-02-15
 

@@ -82,9 +82,14 @@ impl BlockBuilder {
 
                         if let PathArguments::AngleBracketed(path_args) = args {
                             if let Some(arg) = path_args.args.first() {
-                                if let GenericArgument::Type(Type::ImplTrait(ref imp)) = arg.value()
-                                {
-                                    self.with_impl_trait(imp)
+                                match arg.value() {
+                                    GenericArgument::Type(Type::ImplTrait(ref imp)) => {
+                                        self.with_impl_trait(imp)
+                                    },
+                                    GenericArgument::Type(Type::Tuple(ref tuple)) if tuple.elems.is_empty() => {
+                                        self.void = true;
+                                    },
+                                    _ => {}
                                 }
                             }
                         }
@@ -94,7 +99,10 @@ impl BlockBuilder {
                     self.outer_result = false;
                     self.with_impl_trait(imp);
                 }
-                _ => panic!("Unsupported return type"),
+                Type::Tuple(ref tuple) if tuple.elems.is_empty() => {
+                    self.void = true;
+                }
+                ref t => panic!("Unsupported return type {:#?}", t),
             },
         }
         self
@@ -207,8 +215,9 @@ impl BlockBuilder {
         const PANIC:   bool = false;
 
         match (self.void, self.iterator, self.outer_result, self.inner_result, self.no_panic) {
-            (VOID,   _,      _,      _,      NOPANIC) => quote! { shellfn::execute_void_nopanic },
-            (VOID,   _,      _,      _,      PANIC)   => quote! { shellfn::execute_void_panic },
+            (VOID,   _,      NOORES, _,      NOPANIC) => quote! { shellfn::execute_void_nopanic },
+            (VOID,   _,      NOORES, _,      PANIC)   => quote! { shellfn::execute_void_panic },
+            (VOID,   _,      ORES,   _,      _)       => quote! { shellfn::execute_void_result },
             (NOVOID, NOITER, ORES,   _,      _)       => quote! { shellfn::execute_parse_result },
             (NOVOID, NOITER, NOORES, _,      _)       => quote! { shellfn::execute_parse_panic },
             (NOVOID, ITER,   ORES,   IRES,   _)       => quote! { shellfn::execute_iter_result_result },

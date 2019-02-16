@@ -1,10 +1,10 @@
-use crate::error::Error;
+use crate::error::{Error, NeverError};
 use crate::utils::spawn;
 use itertools::Either;
 use std::error::Error as StdError;
 use std::ffi::OsStr;
 use std::io::{BufRead, BufReader};
-use std::process::Child;
+use std::process::{Child, Output};
 use std::str::FromStr;
 
 const PANIC_MSG: &'static str = "Shell execution failed";
@@ -71,6 +71,48 @@ pub fn execute_void_panic<TArg, TEnvKey, TEnvVal>(
     if !output.status.success() {
         panic!(PANIC_MSG)
     }
+}
+
+/// Executes command with args and environment variables, ignores output
+/// * On invalid command: return error
+/// * On error exit code: return error
+/// * On parsing failure: N/A
+/// * Possible errors: ProcessNotSpawned, WaitFailed, ProcessFailed (stdout and stderr always empty)
+///
+/// Designed for
+/// ```rust
+/// use shellfn::shell;
+///
+/// #[shell]
+/// fn command() -> Result<(), Box<Error>> {
+///     sleep 5
+/// }
+///
+/// command()
+/// ```
+pub fn execute_void_result<TArg, TEnvKey, TEnvVal, TError>(
+    cmd:  impl AsRef<OsStr>,
+    args: impl IntoIterator<Item = TArg>,
+    envs: impl IntoIterator<Item = (TEnvKey, TEnvVal)>,
+) -> Result<(), TError>
+where
+    TArg: AsRef<OsStr>,
+    TEnvKey: AsRef<OsStr>,
+    TEnvVal: AsRef<OsStr>,
+    TError: From<Error<NeverError>>
+{
+    let mut process = spawn(cmd, args, envs).map_err(Error::ProcessNotSpawned)?;
+    let status      = process.wait().map_err(Error::WaitFailed)?;
+
+    if !status.success() {
+        return Err(Error::ProcessFailed(Output {
+            status,
+            stdout: Vec::new(),
+            stderr: Vec::new(),
+        }))?;
+    }
+
+    Ok(())
 }
 
 /// Executes command with args and environment variables, parses output

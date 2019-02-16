@@ -148,6 +148,70 @@ mod analyzes_return_type {
         }
     }
 
+    mod when_fn_returns_unit {
+        use super::*;
+
+        mod and_it_is_not_wrapped_with_result {
+            use super::*;
+
+            #[shell]
+            fn script(interval: &str) -> () { r#"
+                sleep $INTERVAL
+            "# }
+
+            #[shell(cmd = "dummy_invalid_command_123")]
+            fn invalid_script() -> () { r#"
+                invalid script
+            "# }
+
+            #[test]
+            fn does_nothing_when_script_ends_with_success() {
+                script("0")
+            }
+
+            #[test]
+            #[should_panic]
+            fn panics_when_script_ends_with_failure() {
+                script("DEFINITELY_NOT_INT");
+            }
+
+            #[test]
+            #[should_panic]
+            fn panics_when_script_is_invalid() {
+                invalid_script()
+            }
+        }
+
+        mod and_it_is_wrapped_with_result {
+            use super::*;
+
+            #[shell]
+            fn script(interval: &str) -> Result<(), BoxedError> { r#"
+                sleep $INTERVAL
+            "# }
+
+            #[shell(cmd = "dummy_invalid_command_123")]
+            fn invalid_script() -> Result<(), BoxedError> { r#"
+                invalid script
+            "# }
+
+            #[test]
+            fn returns_ok_when_script_ends_with_success() {
+                assert!(script("0").is_ok())
+            }
+
+            #[test]
+            fn returns_error_when_script_ends_with_failure() {
+                assert!(script("DEFINITELY_NOT_INT").is_err())
+            }
+
+            #[test]
+            fn returns_error_when_script_is_invalid() {
+                assert!(invalid_script().is_err())
+            }
+        }
+    }
+
     mod when_fn_returns_single_value {
         use super::*;
 
