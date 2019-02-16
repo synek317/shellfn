@@ -1,8 +1,10 @@
 [package]
-name    = "shellfn-core"
-version = "0.1.0"
-authors = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
-edition = "2018"
+name        = "shellfn-core"
+version     = "0.1.0"
+authors     = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
+description = "Core functions for `shellfn` crate"
+license     = "MIT"
+edition     = "2018"
 
 [lib]
 doctest = false
