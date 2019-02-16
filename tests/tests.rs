@@ -598,4 +598,303 @@ mod analyzes_return_type {
             }
         }
     }
+
+    mod when_fn_returns_vec {
+        use super::*;
+
+        mod and_it_is_not_wrapped_with_result {
+            use super::*;
+
+            mod and_the_item_is_not_wrapped_with_result {
+                use super::*;
+
+                mod and_fn_should_panic {
+                    use super::*;
+
+                    #[shell]
+                    fn script(data: &str, exit_code: u32) -> Vec<u32> { r#"
+                        for V in $DATA; do
+                            echo $V;
+                        done
+
+                        exit $EXIT_CODE
+                    "# }
+
+                    #[shell(cmd = "dummy_invalid_command_123")]
+                    fn invalid_script() -> Vec<u32> { r#"
+                        invalid script iter
+                    "# }
+
+                    #[test]
+                    fn returns_parsed_values_when_script_ends_with_success() {
+                        let actual = script("42 100", 0);
+
+                        assert_eq!(vec![42, 100], actual)
+                    }
+
+                    #[test]
+                    #[should_panic]
+                    fn panics_when_parsing_fails() {
+                        script("100 DEFINITELY_NOT_INT", 0);
+                    }
+
+                    #[test]
+                    #[should_panic]
+                    fn panics_when_script_ends_with_failure() {
+                        script("100", 1);
+                    }
+
+                    #[test]
+                    #[should_panic]
+                    fn panics_when_script_is_invalid() {
+                        invalid_script();
+                    }
+                }
+
+                mod and_fn_should_not_panic {
+                    use super::*;
+
+                    #[shell(no_panic)]
+                    fn script(data: &str, exit_code: u32) -> Vec<u32> { r#"
+                        for V in $DATA; do
+                            echo $V;
+                        done
+
+                        exit $EXIT_CODE
+                    "# }
+
+                    #[shell(cmd = "dummy_invalid_command_123", no_panic)]
+                    fn invalid_script() -> Vec<u32> { r#"
+                        invalid script iter
+                    "# }
+
+                    #[test]
+                    fn returns_only_successfuly_parsed_values_when_script_ends_with_success() {
+                        assert_eq!(vec![42, 100], script("42 FOO 100 BAR", 0))
+                    }
+
+                    #[test]
+                    fn returns_only_successfuly_parsed_values_when_script_ends_with_failure() {
+                        assert_eq!(vec![42, 100], script("42 FOO 100", 1))
+                    }
+
+                    #[test]
+                    fn returns_no_items_when_script_is_invalid() {
+                        assert!(invalid_script().is_empty());
+                    }
+                }
+            }
+
+            mod and_the_item_is_wrapped_with_result {
+                use super::*;
+
+                mod and_fn_should_panic {
+                    use super::*;
+
+                    #[shell]
+                    fn script(data: &str, exit_code: u32) -> Vec<Result<u32, BoxedError>> { r#"
+                        for V in $DATA; do
+                            echo $V;
+                        done
+
+                        exit $EXIT_CODE
+                    "# }
+
+                    #[shell(cmd = "dummy_invalid_command_123")]
+                    fn invalid_script() -> Vec<Result<u32, BoxedError>> { r#"
+                        invalid script iter
+                    "# }
+
+                    #[test]
+                    fn returns_parsing_results_when_script_ends_with_success() {
+                        let actual = script("42 FOO 100", 0);
+
+                        assert_eq!(3, actual.len());
+                        assert_eq!(42, *actual[0].as_ref().unwrap());
+                        assert!(actual[1].is_err());
+                        assert_eq!(100, *actual[2].as_ref().unwrap());
+                    }
+
+                    #[test]
+                    #[should_panic]
+                    fn panics_when_script_ends_with_failure() {
+                        let _ = script("100", 1);
+                    }
+
+                    #[test]
+                    #[should_panic]
+                    fn panics_when_script_is_invalid() {
+                        let _ = invalid_script();
+                    }
+                }
+
+                mod and_fn_should_not_panic {
+                    use super::*;
+
+                    #[shell(no_panic)]
+                    fn script(data: &str, exit_code: u32) -> Vec<Result<u32, BoxedError>> { r#"
+                        for V in $DATA; do
+                            echo $V;
+                        done
+
+                        exit $EXIT_CODE
+                    "# }
+
+                    #[shell(cmd = "dummy_invalid_command_123", no_panic)]
+                    fn invalid_script() -> Vec<Result<u32, BoxedError>> { r#"
+                        invalid script iter
+                    "# }
+
+                    #[test]
+                    fn returns_parsing_results_when_script_ends_with_success() {
+                        let actual = script("42 FOO 100 BAR", 0);
+
+                        assert_eq!(4, actual.len());
+                        assert_eq!(42, *actual[0].as_ref().unwrap());
+                        assert!(actual[1].is_err());
+                        assert_eq!(100, *actual[2].as_ref().unwrap());
+                        assert!(actual[3].is_err());
+                    }
+
+                    #[test]
+                    fn returns_parsing_results_when_script_ends_with_failure() {
+                        let actual = script("42 FOO 100", 1);
+
+                        assert_eq!(3, actual.len());
+                        assert_eq!(42, *actual[0].as_ref().unwrap());
+                        assert!(actual[1].is_err());
+                        assert_eq!(100, *actual[2].as_ref().unwrap());
+                    }
+
+                    #[test]
+                    fn returns_no_items_when_script_is_invalid() {
+                        assert!(invalid_script().is_empty());
+                    }
+                }
+            }
+        }
+
+        mod and_it_is_wrapped_with_result {
+            use super::*;
+
+            mod and_the_item_is_not_wrapped_with_result {
+                use super::*;
+
+                mod and_fn_should_panic {
+                    use super::*;
+
+                    #[shell]
+                    fn script(data: &str, exit_code: u32) -> Result<Vec<u32>, BoxedError> { r#"
+                        for V in $DATA; do
+                            echo $V;
+                        done
+
+                        exit $EXIT_CODE
+                    "# }
+
+                    #[shell(cmd = "dummy_invalid_command_123")]
+                    fn invalid_script() -> Result<Vec<u32>, BoxedError> { r#"
+                        invalid script iter
+                    "# }
+
+                    #[test]
+                    fn returns_parsed_values_when_script_ends_with_success() {
+                        let actual = script("42 100", 0).unwrap();
+
+                        assert_eq!(vec![42, 100], actual)
+                    }
+
+                    #[test]
+                    fn returns_error_when_script_ends_with_failure() {
+                        assert!(script("42 100", 1).is_err());
+                    }
+
+                    #[test]
+                    #[should_panic]
+                    fn panics_when_parsing_fails() {
+                        let _ = script("100 DEFINITELY_NOT_INT", 0);
+                    }
+
+                    #[test]
+                    fn returns_error_when_script_is_invalid() {
+                        assert!(invalid_script().is_err())
+                    }
+                }
+
+                mod and_fn_should_not_panic {
+                    use super::*;
+
+                    #[shell(no_panic)]
+                    fn script(data: &str, exit_code: u32) -> Result<Vec<u32>, BoxedError> { r#"
+                        for V in $DATA; do
+                            echo $V;
+                        done
+
+                        exit $EXIT_CODE
+                    "# }
+
+                    #[shell(cmd = "dummy_invalid_command_123", no_panic)]
+                    fn invalid_script() -> Result<Vec<u32>, BoxedError> { r#"
+                        invalid script iter
+                    "# }
+
+                    #[test]
+                    fn returns_only_successfuly_parsed_values_when_script_ends_with_success() {
+                        let actual = script("42 100 BAR", 0).unwrap();
+
+                        assert_eq!(vec![42, 100], actual)
+                    }
+
+                    #[test]
+                    fn returns_error_when_script_ends_with_failure() {
+                        assert!(script("42 FOO 100", 1).is_err())
+                    }
+
+                    #[test]
+                    fn returns_error_when_script_is_invalid() {
+                        assert!(invalid_script().is_err())
+                    }
+                }
+            }
+
+            mod and_the_item_is_wrapped_with_result {
+                use super::*;
+
+                #[shell]
+                fn script(data: &str, exit_code: u32) -> Result<Vec<Result<u32, BoxedError>>, BoxedError> { r#"
+                    for V in $DATA; do
+                        echo $V;
+                    done
+
+                    exit $EXIT_CODE
+                "# }
+
+                #[shell(cmd = "dummy_invalid_command_123")]
+                fn invalid_script() -> Result<Vec<Result<u32, BoxedError>>, BoxedError> { r#"
+                    invalid script iter
+                "# }
+
+                #[test]
+                fn returns_parsing_results_when_script_ends_with_success() {
+                    let actual = script("BAR 42 FOO 100", 0).unwrap();
+
+                    assert_eq!(4, actual.len());
+                    assert!(actual[0].is_err());
+                    assert_eq!(42, *actual[1].as_ref().unwrap());
+                    assert!(actual[2].is_err());
+                    assert_eq!(100, *actual[3].as_ref().unwrap());
+                }
+
+                #[test]
+                fn returns_error_when_script_ends_with_failure() {
+                    assert!(script("BAR 42 FOO 100", 1).is_err());
+                }
+
+                #[test]
+                fn returns_error_when_script_is_invalid() {
+                    assert!(invalid_script().is_err())
+                }
+            }
+        }
+    }
 }

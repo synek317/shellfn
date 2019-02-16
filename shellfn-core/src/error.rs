@@ -48,9 +48,13 @@ impl<PE: StdError> std::fmt::Display for Error<PE> {
 }
 
 impl StdError for NeverError {
-    fn description(&self) -> &str { "" }
+    fn description(&self) -> &str {
+        ""
+    }
 
-    fn cause(&self) -> Option<&StdError> { None }
+    fn cause(&self) -> Option<&StdError> {
+        None
+    }
 }
 
 impl std::fmt::Display for NeverError {

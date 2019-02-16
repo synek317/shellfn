@@ -3,6 +3,7 @@ extern crate proc_macro;
 
 mod attributes;
 mod block_builder;
+mod output_type;
 mod utils;
 
 use crate::attributes::Attributes;

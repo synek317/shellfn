@@ -1,4 +1,5 @@
 use crate::attributes::Attributes;
+use crate::output_type::OutputType;
 use crate::utils::*;
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::quote;
@@ -12,11 +13,10 @@ pub struct BlockBuilder {
     cmd:          String,
     args:         Vec<String>,
     envs:         Vec<String>,
-    iterator:     bool,
+    output_type:  OutputType,
     outer_result: bool,
     inner_result: bool,
     no_panic:     bool,
-    void:         bool,
 }
 
 impl BlockBuilder {
@@ -71,26 +71,27 @@ impl BlockBuilder {
     pub fn with_return_type(mut self, return_type: ReturnType) -> Self {
         match return_type {
             ReturnType::Default => {
-                self.void = true;
+                self.with_unit_return_type();
             }
             ReturnType::Type(_, ref t) => match **t {
-                Type::Path(ref type_path) => {
-                    if is_result_type_path(type_path) {
-                        self.outer_result = true;
+                Type::Path(ref type_path) if is_result_type_path(type_path) => {
+                    self.outer_result = true;
 
-                        let args = &type_path.path.segments.last().unwrap().value().arguments;
+                    let args = &type_path.path.segments.last().unwrap().value().arguments;
 
-                        if let PathArguments::AngleBracketed(path_args) = args {
-                            if let Some(arg) = path_args.args.first() {
-                                match arg.value() {
-                                    GenericArgument::Type(Type::ImplTrait(ref imp)) => {
-                                        self.with_impl_trait(imp)
-                                    },
-                                    GenericArgument::Type(Type::Tuple(ref tuple)) if tuple.elems.is_empty() => {
-                                        self.void = true;
-                                    },
-                                    _ => {}
+                    if let PathArguments::AngleBracketed(path_args) = args {
+                        if let Some(arg) = path_args.args.first() {
+                            match arg.value() {
+                                GenericArgument::Type(Type::ImplTrait(ref imp)) => {
+                                    self.with_impl_trait(imp)
                                 }
+                                GenericArgument::Type(ref t) if is_unit_type(t) => {
+                                    self.with_unit_return_type();
+                                }
+                                GenericArgument::Type(ref t) if is_vec_type(t) => {
+                                    self.with_vec_return_type(t);
+                                }
+                                _ => {}
                             }
                         }
                     }
@@ -99,13 +100,33 @@ impl BlockBuilder {
                     self.outer_result = false;
                     self.with_impl_trait(imp);
                 }
-                Type::Tuple(ref tuple) if tuple.elems.is_empty() => {
-                    self.void = true;
-                }
+                ref t if is_vec_type(t) => self.with_vec_return_type(t),
+                ref t if is_unit_type(t) => self.with_unit_return_type(),
+                Type::Path(_) => {}
                 ref t => panic!("Unsupported return type {:#?}", t),
             },
         }
         self
+    }
+
+    fn with_unit_return_type(&mut self) {
+        self.output_type = OutputType::Void;
+    }
+
+    fn with_vec_return_type(&mut self, typ: &Type) {
+        self.output_type = OutputType::Vec;
+
+        if let Type::Path(ref type_path) = typ {
+            let args = &type_path.path.segments.last().unwrap().value().arguments;
+
+            if let PathArguments::AngleBracketed(path_args) = args {
+                if let Some(arg) = path_args.args.first() {
+                    if let GenericArgument::Type(ref t) = arg.value() {
+                        self.inner_result = is_result_type(t);
+                    }
+                }
+            }
+        }
     }
 
     fn with_impl_trait(&mut self, imp: &TypeImplTrait) {
@@ -115,7 +136,7 @@ impl BlockBuilder {
                     let segment = pair.value();
 
                     if segment.ident.to_string() == "Iterator" {
-                        self.iterator = true;
+                        self.output_type = OutputType::Iter;
 
                         if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
                             if let Some(arg) = path_args.args.first() {
@@ -159,24 +180,26 @@ impl BlockBuilder {
         //   "$MODULE".replace("$MODULE", module),
         //   "-v".to_string()
         // ]
-        let args = self.args
+        let args = self
+            .args
             .into_iter()
             .map(|arg|
                 env_names
                     .iter()
                     .enumerate()
-                    .fold(
-                        quote!{ #arg },
-                        |arg_tokens, (i, var_name)| {
-                            let pattern = format!("${}", var_name);
-
-                            if arg.contains(&pattern) {
-                                quote!{ #arg_tokens.replace(#pattern, &envs[#i].1) }
-                            } else {
-                                arg_tokens
-                            }
+                    .fold(quote! { #arg }, |arg_tokens, (i, var_name)| {
+                        if arg == PROGRAM {
+                            return arg_tokens;
                         }
-                    )
+
+                        let pattern = format!("${}", var_name);
+
+                        if arg.contains(&pattern) {
+                            quote! { #arg_tokens.replace(#pattern, &envs[#i].1) }
+                        } else {
+                            arg_tokens
+                        }
+                    })
             )
             .map(|tokens| quote! { #tokens.to_string() })
             .collect::<Vec<_>>();
@@ -203,30 +226,40 @@ impl BlockBuilder {
     }
 
     fn select_execute_fn(&self) -> TokenStream2 {
-        const VOID:    bool = true;
-        const NOVOID:  bool = false;
-        const ITER:    bool = true;
-        const NOITER:  bool = false;
-        const ORES:    bool = true;
+        use OutputType::*;
+
+        const ORES:    bool = true; // outer result, like Result<impl Iterator<Item=T>, E>
         const NOORES:  bool = false;
-        const IRES:    bool = true;
+        const IRES:    bool = true; // inner result, like impl Iterator<Item=Result<T, E>>
         const NOIRES:  bool = false;
         const NOPANIC: bool = true;
         const PANIC:   bool = false;
 
-        match (self.void, self.iterator, self.outer_result, self.inner_result, self.no_panic) {
-            (VOID,   _,      NOORES, _,      NOPANIC) => quote! { shellfn::execute_void_nopanic },
-            (VOID,   _,      NOORES, _,      PANIC)   => quote! { shellfn::execute_void_panic },
-            (VOID,   _,      ORES,   _,      _)       => quote! { shellfn::execute_void_result },
-            (NOVOID, NOITER, ORES,   _,      _)       => quote! { shellfn::execute_parse_result },
-            (NOVOID, NOITER, NOORES, _,      _)       => quote! { shellfn::execute_parse_panic },
-            (NOVOID, ITER,   ORES,   IRES,   _)       => quote! { shellfn::execute_iter_result_result },
-            (NOVOID, ITER,   ORES,   NOIRES, NOPANIC) => quote! { shellfn::execute_iter_result_nopanic },
-            (NOVOID, ITER,   ORES,   NOIRES, PANIC)   => quote! { shellfn::execute_iter_result_panic },
-            (NOVOID, ITER,   NOORES, IRES,   PANIC)   => quote! { shellfn::execute_iter_panic_result },
-            (NOVOID, ITER,   NOORES, IRES,   NOPANIC) => quote! { shellfn::execute_iter_nopanic_result },
-            (NOVOID, ITER,   NOORES, NOIRES, NOPANIC) => quote! { shellfn::execute_iter_nopanic_nopanic },
-            (NOVOID, ITER,   NOORES, NOIRES, PANIC)   => quote! { shellfn::execute_iter_panic_panic },
+        match (
+            &self.output_type,
+            self.outer_result,
+            self.inner_result,
+            self.no_panic,
+        ) {
+            (Void, NOORES, _,      NOPANIC) => quote! { shellfn::execute_void_nopanic },
+            (Void, NOORES, _,      PANIC)   => quote! { shellfn::execute_void_panic },
+            (Void, ORES,   _,      _)       => quote! { shellfn::execute_void_result },
+            (T,    ORES,   _,      _)       => quote! { shellfn::execute_parse_result },
+            (T,    NOORES, _,      _)       => quote! { shellfn::execute_parse_panic },
+            (Iter, ORES,   IRES,   _)       => quote! { shellfn::execute_iter_result_result },
+            (Iter, ORES,   NOIRES, NOPANIC) => quote! { shellfn::execute_iter_result_nopanic },
+            (Iter, ORES,   NOIRES, PANIC)   => quote! { shellfn::execute_iter_result_panic },
+            (Iter, NOORES, IRES,   PANIC)   => quote! { shellfn::execute_iter_panic_result },
+            (Iter, NOORES, IRES,   NOPANIC) => quote! { shellfn::execute_iter_nopanic_result },
+            (Iter, NOORES, NOIRES, NOPANIC) => quote! { shellfn::execute_iter_nopanic_nopanic },
+            (Iter, NOORES, NOIRES, PANIC)   => quote! { shellfn::execute_iter_panic_panic },
+            (Vec,  ORES,   IRES,   _)       => quote! { shellfn::execute_vec_result_result },
+            (Vec,  ORES,   NOIRES, NOPANIC) => quote! { shellfn::execute_vec_result_nopanic },
+            (Vec,  ORES,   NOIRES, PANIC)   => quote! { shellfn::execute_vec_result_panic },
+            (Vec,  NOORES, IRES,   PANIC)   => quote! { shellfn::execute_vec_panic_result },
+            (Vec,  NOORES, IRES,   NOPANIC) => quote! { shellfn::execute_vec_nopanic_result },
+            (Vec,  NOORES, NOIRES, NOPANIC) => quote! { shellfn::execute_vec_nopanic_nopanic },
+            (Vec,  NOORES, NOIRES, PANIC)   => quote! { shellfn::execute_vec_panic_panic },
         }
     }
 }

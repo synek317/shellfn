@@ -100,32 +100,46 @@ Following return types are currently recognized:
 | T                                             | no_panic | panic         | panic              | panic         | 1,2   |
 | Result<T, E>                                  |          | error         | error              | error         | 2     |
 | Result<T, E>                                  | no_panic | error         | error              | error         | 1,2   |
+| Vec<T>                                        |          | panic         | panic              | panic         |       |
+| Vec<T>                                        | no_panic | skip          | ignored            | empty vec     | 3     |
+| Vec<Result<T, E>>                             |          | item error    | panic              | panic         |       |
+| Vec<Result<T, E>>                             | no_panic | item error    | ignored            | empty vec     |       |
+| Result<Vec<T>, E>                             |          | panic         | error              | error         |       |
+| Result<Vec<T>, E>                             | no_panic | skip          | error              | error         |       |
+| Result<Vec<Result<T, E1>>, E2>                |          | item error    | error              | error         |       |
+| Result<Vec<Result<T, E1>>, E2>                | no_panic | item error    | error              | error         | 1     |
 | impl Iterator<Item=T>                         |          | panic         | panic              | panic         |       |
-| impl Iterator<Item=T>                         | no_panic | ignore errors | ignore errors      | empty iter    | 3     |
+| impl Iterator<Item=T>                         | no_panic | skip          | ignored            | empty iter    | 3     |
 | impl Iterator<Item=Result<T, E>>              |          | item error    | panic              | panic         | 3     |
 | impl Iterator<Item=Result<T, E>>              | no_panic | item error    | ignored            | empty iter    |       |
 | Result<impl Iterator<Item=T>, E>              |          | panic         | ignored            | error         |       |
-| Result<impl Iterator<Item=T>, E>              | no_panic | ignore errors | ignored            | error         |       |
+| Result<impl Iterator<Item=T>, E>              | no_panic | skip          | ignored            | error         |       |
 | Result<impl Iterator<Item=Result<T, E1>>, E2> |          | item error    | ignored            | error         |       |
 | Result<impl Iterator<Item=Result<T, E1>>, E2> | no_panic | item error    | ignored            | error         | 1     |
 
 Glossary:
 
-|     action    |                                 meaning                                  |
-|---------------|--------------------------------------------------------------------------|
-| panic         | panics (.expect or panic!)                                               |
-| nothing       | consumes and ignores error (let _ = ...)                                 |
-| error         | returns error                                                            |
-| ignore errors | yields all successfuly parsed items, ignores parsing failures (flat_map) |
-| empty iter    | returns empty iterator                                                   |
-| item error    | when parsing fails, yields Err                                           |
-| ignored       | ignores exit code, behaves in the same way for exit code 0 and != 0      |
+|     action     |                                  meaning                                   |
+|----------------|----------------------------------------------------------------------------|
+| panic          | panics (.expect or panic!)                                                 |
+| nothing        | consumes and ignores error (let _ = ...)                                   |
+| error          | returns error                                                              |
+| skip           | yields all successfuly parsed items, ignores parsing failures (filter_map) |
+| empty iter/vec | returns empty iterator / vector                                            |
+| item error     | when parsing fails, yields Err                                             |
+| ignored        | ignores exit code, behaves in the same way for exit code 0 and != 0        |
 
 Notes:
 
 1. The `no_panic` attribute makes no difference
 2. It reads all of stdout before producing any failures
 3. It yields all items until it encounters an error or an exit code
+
+### Vector vs iterator
+
+Variants with the `Vec` return type are very similar to the ones with `impl Iterator`. The key differences are:
+- `impl Iterator` is only allocating one item at the time and yields it immediately after it is parsed, while `Vec` is reading output line by line but stores parsed output in the temporary Vec
+- `Vec` is aware of exit code. When subprocess finishes with error, `impl Iterator` will stop yielding values while `Vec` will return error or panic
 
 # Contribution
 

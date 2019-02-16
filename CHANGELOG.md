@@ -13,6 +13,13 @@ fn run(module: &str) -> Result<String, Box<Error>> {
   * `()` (same as no return type)
   * `()` + no_panic (same as no return type)
   * `Result<(), E>`
+  * `Vec<T>`
+  * `Vec<T>` + no_panic
+  * `Vec<Result<T, E>>`
+  * `Vec<Result<T, E>>` + no_panic
+  * `Result<Vec<T>, E>`
+  * `Result<Vec<T>, E>` + no_panic
+  * `Result<Vec<Result<T, E1>>, E1>`
 
 ## version 0.1.0 - 2019-02-15
 

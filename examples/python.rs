@@ -11,8 +11,7 @@ sort_keys = os.environ['SORT_KEYS'] == 'true'
 obj = json.loads(input)
 
 print(json.dumps(obj, indent=indent, sort_keys=sort_keys))
- "# }
-
+"# }
 
 fn main() -> Result<(), Box<Error>> {
     let json = r#"{"foo": 42, "bar": { "baz": 10, "qux": [1, 2, 3]}}"#;
