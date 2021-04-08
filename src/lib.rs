@@ -117,6 +117,7 @@
 //! | Result<impl Iterator<Item=Result<T, E1>>, E2> |          | item error    | ignored            | error         |       |
 //! | Result<impl Iterator<Item=Result<T, E1>>, E2> | no_panic | item error    | ignored            | error         | 1     |
 //!
+//!
 //! Glossary:
 //!
 //! |     action     |                                  meaning                                   |
