@@ -37,6 +37,6 @@ pub fn check_exit_code_panic(process: Child) {
     let output = process.wait_with_output().expect(PANIC_MSG);
 
     if !output.status.success() {
-            panic!(PANIC_MSG)
+            panic!("{}", PANIC_MSG)
     }
 }

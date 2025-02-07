@@ -90,7 +90,7 @@ where
         .map(|lres| lres.expect(PANIC_MSG).parse().expect(PANIC_MSG))
         .chain([()].into_iter().flat_map(move |_| {
             if !process.wait().unwrap().success() {
-                panic!(PANIC_MSG)
+                panic!("{}", PANIC_MSG)
             }
             std::iter::empty()
         }))
@@ -143,7 +143,7 @@ where
         )
         .chain([()].into_iter().flat_map(move |_| {
             if !process.wait().unwrap().success() {
-                panic!(PANIC_MSG)
+                panic!("{}", PANIC_MSG)
             }
             std::iter::empty()
         }))

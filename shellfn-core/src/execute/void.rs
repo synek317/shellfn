@@ -63,7 +63,7 @@ pub fn execute_void_panic<TArg, TEnvKey, TEnvVal>(
         .expect(PANIC_MSG);
 
     if !output.status.success() {
-        panic!(PANIC_MSG)
+        panic!("{}", PANIC_MSG)
     }
 }
 
