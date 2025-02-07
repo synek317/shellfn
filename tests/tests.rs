@@ -4,7 +4,7 @@ use shellfn::shell;
 use std::error::Error as StdError;
 use std::fmt::Display;
 
-type BoxedError = Box<StdError>;
+type BoxedError = Box<dyn StdError>;
 
 #[test]
 fn runs_simple_bash_script() {

@@ -29,7 +29,7 @@ impl<PE: StdError> StdError for Error<PE> {
         }
     }
 
-    fn cause(&self) -> Option<&StdError> {
+    fn cause(&self) -> Option<&dyn StdError> {
         match self {
             Error::NonUtf8Stdout(ref e)     => Some(e),
             Error::ParsingError(ref e)      => Some(e),
@@ -52,7 +52,7 @@ impl StdError for NeverError {
         ""
     }
 
-    fn cause(&self) -> Option<&StdError> {
+    fn cause(&self) -> Option<&dyn StdError> {
         None
     }
 }
