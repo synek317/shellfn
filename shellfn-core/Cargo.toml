@@ -10,5 +10,5 @@ edition     = "2018"
 doctest = false
 
 [dependencies]
-itertools = "0.8.0"
+itertools = ">= 0.8, <=0.14"
 thiserror = "2"
