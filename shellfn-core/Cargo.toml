@@ -11,3 +11,4 @@ doctest = false
 
 [dependencies]
 itertools = ">= 0.8, <=0.14"
+thiserror = "2"
