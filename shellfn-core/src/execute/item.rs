@@ -83,7 +83,7 @@ where
         .expect(PANIC_MSG);
 
     if !result.status.success() {
-        panic!(PANIC_MSG);
+        panic!("{}", PANIC_MSG);
     }
 
     String::from_utf8(result.stdout)
