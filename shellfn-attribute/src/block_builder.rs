@@ -154,7 +154,7 @@ impl BlockBuilder {
     }
 
     pub fn build(mut self) -> TokenStream2 {
-        if self.program.len() > 0 {
+        if !self.program.is_empty() {
             self.add_program_to_args();
         } else {
             self.args.retain(|a| a != PROGRAM);
