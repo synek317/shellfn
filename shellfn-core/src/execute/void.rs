@@ -99,12 +99,13 @@ where
     let status = process.wait().map_err(Error::WaitFailed)?;
 
     if !status.success() {
-        return Err(Error::ProcessFailed(Output {
+        Err(Error::ProcessFailed(Output {
             status,
             stdout: Vec::new(),
             stderr: Vec::new(),
-        }))?;
+        })
+        .into())
+    } else {
+        Ok(())
     }
-
-    Ok(())
 }

@@ -39,7 +39,7 @@ where
     let result = process.wait_with_output().map_err(Error::WaitFailed)?;
 
     if !result.status.success() {
-        return Err(Error::ProcessFailed(result))?;
+        return Err(Error::ProcessFailed(result).into());
     }
 
     String::from_utf8(result.stdout)
