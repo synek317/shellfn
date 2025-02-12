@@ -135,13 +135,13 @@ impl BlockBuilder {
                 if let Some(pair) = bound.path.segments.first() {
                     let segment = pair.value();
 
-                    if segment.ident.to_string() == "Iterator" {
+                    if segment.ident == "Iterator" {
                         self.output_type = OutputType::Iter;
 
                         if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
                             if let Some(arg) = path_args.args.first() {
                                 if let GenericArgument::Binding(ref binding) = arg.value() {
-                                    if binding.ident.to_string() == "Item" {
+                                    if binding.ident == "Item" {
                                         if is_result_type(&binding.ty) {
                                             self.inner_result = true;
                                         }
