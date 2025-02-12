@@ -37,5 +37,5 @@ fn is_path_to(name: &str, type_path: &TypePath) -> bool {
         .path
         .segments
         .last()
-        .map_or(false, |s| s.value().ident.to_string() == name)
+        .is_some_and(|s| s.value().ident.to_string() == name)
 }
