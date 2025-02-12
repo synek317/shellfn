@@ -168,7 +168,7 @@ impl BlockBuilder {
         let env_names = envs.iter().map(|s| s.to_uppercase()).collect::<Vec<_>>();
         let env_vals = envs
             .iter()
-            .map(|e| Ident::new(&e, Span::call_site()))
+            .map(|e| Ident::new(e, Span::call_site()))
             .collect::<Vec<_>>();
 
         // replace envs in args, e.g. for
