@@ -197,7 +197,7 @@ where
         )
         .map_or_else(
             || Either::Right(std::iter::empty()),
-            |iter| Either::Left(iter),
+            Either::Left,
         )
 }
 
@@ -240,7 +240,7 @@ where
         })
         .map_or_else(
             || Either::Right(std::iter::empty()),
-            |iter| Either::Left(iter),
+             Either::Left,
         )
 }
 
