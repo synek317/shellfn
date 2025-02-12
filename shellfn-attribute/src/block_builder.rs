@@ -141,10 +141,8 @@ impl BlockBuilder {
                         if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
                             if let Some(arg) = path_args.args.first() {
                                 if let GenericArgument::Binding(ref binding) = arg.value() {
-                                    if binding.ident == "Item" {
-                                        if is_result_type(&binding.ty) {
-                                            self.inner_result = true;
-                                        }
+                                    if binding.ident == "Item" && is_result_type(&binding.ty) {
+                                        self.inner_result = true;
                                     }
                                 }
                             }
