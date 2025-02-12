@@ -27,10 +27,10 @@ pub fn check_exit_code<E: StdError>(process: Child) -> Result<(), Error<E>> {
     let output = process.wait_with_output().map_err(Error::WaitFailed)?;
 
     if !output.status.success() {
-        return Err(Error::ProcessFailed(output));
+        Err(Error::ProcessFailed(output))
+    } else {
+        Ok(())
     }
-
-    return Ok(());
 }
 
 pub fn check_exit_code_panic(process: Child) {
