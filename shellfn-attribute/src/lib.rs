@@ -22,7 +22,7 @@ pub fn shell(attr: TokenStream, input: TokenStream) -> TokenStream {
     if let Some(Stmt::Expr(Expr::Lit(ExprLit {
         lit: Lit::Str(ref program),
         ..
-    }))) = input.block.stmts.iter().next()
+    }))) = input.block.stmts.first()
     {
         let mut result = input.clone();
         let program = program.value();
