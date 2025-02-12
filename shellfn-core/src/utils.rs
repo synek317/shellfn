@@ -4,7 +4,7 @@ use std::ffi::OsStr;
 use std::io;
 use std::process::{Child, Command, Stdio};
 
-pub const PANIC_MSG: &'static str = "Shell execution failed";
+pub const PANIC_MSG: &str = "Shell execution failed";
 
 pub fn spawn<TArg, TEnvKey, TEnvVal>(
     cmd: impl AsRef<OsStr>,

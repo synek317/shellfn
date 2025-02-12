@@ -5,7 +5,7 @@ use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::quote;
 use syn::{FnArg, GenericArgument, PathArguments, ReturnType, Type, TypeImplTrait, TypeParamBound};
 
-const PROGRAM: &'static str = "PROGRAM";
+const PROGRAM: &str = "PROGRAM";
 
 #[derive(Default)]
 pub struct BlockBuilder {
