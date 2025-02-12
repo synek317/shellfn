@@ -5,7 +5,7 @@ use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::quote;
 use syn::{FnArg, GenericArgument, PathArguments, ReturnType, Type, TypeImplTrait, TypeParamBound};
 
-const PROGRAM: &'static str = "PROGRAM";
+const PROGRAM: &str = "PROGRAM";
 
 #[derive(Default)]
 pub struct BlockBuilder {
@@ -135,16 +135,14 @@ impl BlockBuilder {
                 if let Some(pair) = bound.path.segments.first() {
                     let segment = pair.value();
 
-                    if segment.ident.to_string() == "Iterator" {
+                    if segment.ident == "Iterator" {
                         self.output_type = OutputType::Iter;
 
                         if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
                             if let Some(arg) = path_args.args.first() {
                                 if let GenericArgument::Binding(ref binding) = arg.value() {
-                                    if binding.ident.to_string() == "Item" {
-                                        if is_result_type(&binding.ty) {
-                                            self.inner_result = true;
-                                        }
+                                    if binding.ident == "Item" && is_result_type(&binding.ty) {
+                                        self.inner_result = true;
                                     }
                                 }
                             }
@@ -156,7 +154,7 @@ impl BlockBuilder {
     }
 
     pub fn build(mut self) -> TokenStream2 {
-        if self.program.len() > 0 {
+        if !self.program.is_empty() {
             self.add_program_to_args();
         } else {
             self.args.retain(|a| a != PROGRAM);
@@ -168,7 +166,7 @@ impl BlockBuilder {
         let env_names = envs.iter().map(|s| s.to_uppercase()).collect::<Vec<_>>();
         let env_vals = envs
             .iter()
-            .map(|e| Ident::new(&e, Span::call_site()))
+            .map(|e| Ident::new(e, Span::call_site()))
             .collect::<Vec<_>>();
 
         // replace envs in args, e.g. for

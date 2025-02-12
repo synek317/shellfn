@@ -1,12 +1,8 @@
+#[derive(Default)]
 pub enum OutputType {
+    #[default]
     T,
     Iter,
     Vec,
     Void,
-}
-
-impl Default for OutputType {
-    fn default() -> Self {
-        OutputType::T
-    }
 }
