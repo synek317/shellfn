@@ -17,9 +17,6 @@ members = [
     "shellfn-core"
 ]
 
-[badges]
-travis-ci = { repository = "synek317/shellfn", branch = "master" }
-
 [lib]
 doctest = false
 path = "src/lib.rs"
