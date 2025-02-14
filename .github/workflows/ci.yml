@@ -28,3 +28,15 @@ jobs:
           toolchain: ${{ env.clippy_rust_version }}
           components: clippy
       - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  toml_validation:
+    runs-on: ubuntu-latest
+    container:
+      image: tamasfe/taplo:0.9.3
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: taplo lint
+        run: taplo lint
+      - name: taplo fmt
+        run: taplo fmt --check --diff
