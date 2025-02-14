@@ -15,6 +15,6 @@ path       = "src/lib.rs"
 syn          = { version = "0.15.26", features = ["full", "extra-traits"] }
 quote        = "0.6.11"
 proc-macro2  = "0.4.27"
-darling      = "0.8.3"
+darling      = "0.20"
 shellwords   = "1.0.0"
 shellfn-core = { path = "../shellfn-core", version = "0.1.1" }
