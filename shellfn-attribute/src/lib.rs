@@ -16,8 +16,19 @@ use syn::{Expr, ExprLit, Lit, Stmt};
 #[proc_macro_attribute]
 pub fn shell(attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(input as syn::ItemFn);
-    let attr_args = syn::parse_macro_input!(attr as syn::AttributeArgs);
-    let attrs = Attributes::from_list(&attr_args).expect("Meta");
+
+    let parsed_attrs = match darling::ast::NestedMeta::parse_meta_list(attr.into()) {
+        Ok(v) => v,
+        Err(e) => {
+            return TokenStream::from(darling::Error::from(e).write_errors());
+        }
+    };
+    let attrs = match Attributes::from_list(&parsed_attrs) {
+        Ok(v) => v,
+        Err(e) => {
+            return TokenStream::from(e.write_errors());
+        }
+    };
 
     if let Some(Stmt::Expr(Expr::Lit(ExprLit {
         lit: Lit::Str(ref program),
