@@ -12,14 +12,11 @@ documentation = "https://docs.rs/shellfn"
 edition       = "2018"
 
 [workspace]
-members = [
-    "shellfn-attribute",
-    "shellfn-core"
-]
+members = ["shellfn-attribute", "shellfn-core"]
 
 [lib]
 doctest = false
-path = "src/lib.rs"
+path    = "src/lib.rs"
 
 [dependencies]
 shellfn-attribute = { path = "./shellfn-attribute", version = "0.1.1" }
