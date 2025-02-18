@@ -42,15 +42,15 @@ where
     let stdout = process.stdout.take().unwrap();
     let result = BufReader::new(stdout)
         .lines()
-        .map(|lres| lres
-            .map_err(Error::StdoutUnreadable)
-            .map_err(Into::into)
-            .and_then(|line|
-                line.parse()
-                    .map_err(Error::ParsingError)
-                    .map_err(Into::into)
-            )
-        )
+        .map(|lres| {
+            lres.map_err(Error::StdoutUnreadable)
+                .map_err(Into::into)
+                .and_then(|line| {
+                    line.parse()
+                        .map_err(Error::ParsingError)
+                        .map_err(Into::into)
+                })
+        })
         .collect::<Vec<_>>();
 
     check_exit_code(process)?;
@@ -91,11 +91,7 @@ where
     let stdout = process.stdout.take().unwrap();
     let result = BufReader::new(stdout)
         .lines()
-        .map(|lres| lres
-            .expect(PANIC_MSG)
-            .parse()
-            .expect(PANIC_MSG)
-        )
+        .map(|lres| lres.expect(PANIC_MSG).parse().expect(PANIC_MSG))
         .collect::<Vec<_>>();
 
     check_exit_code_panic(process);
@@ -137,15 +133,15 @@ where
     let stdout = process.stdout.take().unwrap();
     let result = BufReader::new(stdout)
         .lines()
-        .map(|lres| lres
-            .map_err(Error::StdoutUnreadable)
-            .map_err(Into::into)
-            .and_then(|line|
-                line.parse()
-                    .map_err(Error::ParsingError)
-                    .map_err(Into::into)
-            )
-        )
+        .map(|lres| {
+            lres.map_err(Error::StdoutUnreadable)
+                .map_err(Into::into)
+                .and_then(|line| {
+                    line.parse()
+                        .map_err(Error::ParsingError)
+                        .map_err(Into::into)
+                })
+        })
         .collect::<Vec<_>>();
 
     check_exit_code_panic(process);
@@ -171,7 +167,7 @@ where
 /// assert_eq!(vec![1, 2, 3], command().map(Result::unwrap).collect::<Vec<_>>())
 /// ```
 pub fn execute_vec_nopanic_result<T, TArg, TEnvKey, TEnvVal, TError>(
-    cmd:  impl AsRef<OsStr>,
+    cmd: impl AsRef<OsStr>,
     args: impl IntoIterator<Item = TArg>,
     envs: impl IntoIterator<Item = (TEnvKey, TEnvVal)>,
 ) -> Vec<Result<T, TError>>
@@ -184,20 +180,20 @@ where
     TError: From<Error<<T as FromStr>::Err>>,
 {
     spawn(cmd, args, envs)
-        .map(|mut process|
+        .map(|mut process| {
             BufReader::new(process.stdout.take().unwrap())
                 .lines()
-                .map(|lres|
+                .map(|lres| {
                     lres.map_err(Error::StdoutUnreadable)
                         .map_err(Into::into)
-                        .and_then(|line|
+                        .and_then(|line| {
                             line.parse()
                                 .map_err(Error::ParsingError)
                                 .map_err(Into::into)
-                        )
-                )
+                        })
+                })
                 .collect::<Vec<_>>()
-        )
+        })
         .unwrap_or(Vec::default())
 }
 

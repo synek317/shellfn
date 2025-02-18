@@ -41,15 +41,15 @@ where
     let mut process = spawn(cmd, args, envs).map_err(Error::ProcessNotSpawned)?;
     let stdout = process.stdout.take().unwrap();
 
-    Ok(BufReader::new(stdout).lines().map(|lres|
+    Ok(BufReader::new(stdout).lines().map(|lres| {
         lres.map_err(Error::StdoutUnreadable)
             .map_err(Into::into)
-            .and_then(|line|
+            .and_then(|line| {
                 line.parse()
                     .map_err(Error::ParsingError)
                     .map_err(Into::into)
-            )
-    ))
+            })
+    }))
 }
 
 /// Executes command with args and environment variables, parses output line by line
@@ -132,15 +132,15 @@ where
 
     BufReader::new(stdout)
         .lines()
-        .map(|lres|
+        .map(|lres| {
             lres.map_err(Error::StdoutUnreadable)
                 .map_err(Into::into)
-                .and_then(|line|
+                .and_then(|line| {
                     line.parse()
                         .map_err(Error::ParsingError)
                         .map_err(Into::into)
-                )
-        )
+                })
+        })
         .chain([()].iter().flat_map(move |_| {
             if !process.wait().unwrap().success() {
                 panic!("{}", PANIC_MSG)
@@ -182,23 +182,20 @@ where
 {
     spawn(cmd, args, envs)
         .ok()
-        .map(|mut process|
+        .map(|mut process| {
             BufReader::new(process.stdout.take().unwrap())
                 .lines()
-                .map(|lres|
+                .map(|lres| {
                     lres.map_err(Error::StdoutUnreadable)
                         .map_err(Into::into)
-                        .and_then(|line|
+                        .and_then(|line| {
                             line.parse()
                                 .map_err(Error::ParsingError)
                                 .map_err(Into::into)
-                        )
-                )
-        )
-        .map_or_else(
-            || Either::Right(std::iter::empty()),
-            Either::Left,
-        )
+                        })
+                })
+        })
+        .map_or_else(|| Either::Right(std::iter::empty()), Either::Left)
 }
 
 /// Executes command with args and environment variables, parses output line by line
@@ -238,10 +235,7 @@ where
                 .lines()
                 .filter_map(|lres| lres.ok().and_then(|line| line.parse().ok()))
         })
-        .map_or_else(
-            || Either::Right(std::iter::empty()),
-             Either::Left,
-        )
+        .map_or_else(|| Either::Right(std::iter::empty()), Either::Left)
 }
 
 /// Executes command with args and environment variables, parses output line by line

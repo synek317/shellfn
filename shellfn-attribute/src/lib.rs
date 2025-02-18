@@ -51,6 +51,8 @@ pub fn shell(attr: TokenStream, input: TokenStream) -> TokenStream {
         })
         .into()
     } else {
-        panic!(r"Invalid input. Expected fn containing only string literal without any other statements")
+        panic!(
+            r"Invalid input. Expected fn containing only string literal without any other statements"
+        )
     }
 }
