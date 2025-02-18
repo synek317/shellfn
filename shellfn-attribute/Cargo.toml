@@ -12,9 +12,9 @@ proc-macro = true
 path       = "src/lib.rs"
 
 [dependencies]
-syn          = { version = "0.15.26", features = ["full", "extra-traits"] }
-quote        = "0.6.11"
-proc-macro2  = "0.4.27"
+syn          = { version = "2", features = ["full", "extra-traits"] }
+quote        = "1"
+proc-macro2  = "1"
 darling      = "0.20"
 shellwords   = "1.0.0"
 shellfn-core = { path = "../shellfn-core", version = "0.1.1" }

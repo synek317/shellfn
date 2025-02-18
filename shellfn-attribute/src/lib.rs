@@ -33,15 +33,15 @@ pub fn shell(attr: TokenStream, input: TokenStream) -> TokenStream {
     if let Some(Stmt::Expr(Expr::Lit(ExprLit {
         lit: Lit::Str(ref program),
         ..
-    }))) = input.block.stmts.first()
+    }), _)) = input.block.stmts.first()
     {
         let mut result = input.clone();
         let program = program.value();
         let block = BlockBuilder::new()
             .with_program(program)
             .with_attrs(attrs)
-            .with_args(input.decl.inputs.iter())
-            .with_return_type(input.decl.output)
+            .with_args(input.sig.inputs.iter())
+            .with_return_type(input.sig.output)
             .build();
 
         result.block = syn::parse2(block).expect("generated invalid block");
