@@ -54,14 +54,12 @@ impl BlockBuilder {
         for arg in args {
             self.envs.push(
                 match arg {
-                    SelfRef(_) | SelfValue(_) => "self".to_string(),
-                    Captured(a) => match a.pat {
+                    Receiver(_) => "self".to_string(),
+                    Typed(pat_type) => match pat_type.pat.as_ref() {
                         Ident(ref pat_ident) => pat_ident.ident.to_string(),
                         Wild(_) => continue,
-                        _ => panic!("captured arguments with pattern other than simple Ident are not yet supported")
+                        _ => panic!("captured arguments with pattern other than simple Ident are not yet supported"),
                     },
-                    Ignored(_) => continue,
-                    Inferred(_) => panic!("inferred arguments are not yet supported")
                 }
             );
         }
@@ -77,11 +75,11 @@ impl BlockBuilder {
                 Type::Path(ref type_path) if is_result_type_path(type_path) => {
                     self.outer_result = true;
 
-                    let args = &type_path.path.segments.last().unwrap().value().arguments;
+                    let args = &type_path.path.segments.last().unwrap().arguments;
 
                     if let PathArguments::AngleBracketed(path_args) = args {
                         if let Some(arg) = path_args.args.first() {
-                            match arg.value() {
+                            match arg {
                                 GenericArgument::Type(Type::ImplTrait(ref imp)) => {
                                     self.with_impl_trait(imp)
                                 }
@@ -117,34 +115,27 @@ impl BlockBuilder {
         self.output_type = OutputType::Vec;
 
         if let Type::Path(ref type_path) = typ {
-            let args = &type_path.path.segments.last().unwrap().value().arguments;
+            let args = &type_path.path.segments.last().unwrap().arguments;
 
             if let PathArguments::AngleBracketed(path_args) = args {
-                if let Some(arg) = path_args.args.first() {
-                    if let GenericArgument::Type(ref t) = arg.value() {
-                        self.inner_result = is_result_type(t);
-                    }
+                if let Some(GenericArgument::Type(ref t)) = path_args.args.first() {
+                    self.inner_result = is_result_type(t);
                 }
             }
         }
     }
 
     fn with_impl_trait(&mut self, imp: &TypeImplTrait) {
-        if let Some(t) = imp.bounds.first() {
-            if let TypeParamBound::Trait(ref bound) = t.value() {
-                if let Some(pair) = bound.path.segments.first() {
-                    let segment = pair.value();
+        if let Some(TypeParamBound::Trait(ref bound)) = imp.bounds.first() {
+            if let Some(segment) = bound.path.segments.first() {
+                if segment.ident == "Iterator" {
+                    self.output_type = OutputType::Iter;
 
-                    if segment.ident == "Iterator" {
-                        self.output_type = OutputType::Iter;
-
-                        if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
-                            if let Some(arg) = path_args.args.first() {
-                                if let GenericArgument::Binding(ref binding) = arg.value() {
-                                    if binding.ident == "Item" && is_result_type(&binding.ty) {
-                                        self.inner_result = true;
-                                    }
-                                }
+                    if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
+                        if let Some(GenericArgument::AssocType(ref binding)) = path_args.args.first()
+                        {
+                            if binding.ident == "Item" && is_result_type(&binding.ty) {
+                                self.inner_result = true;
                             }
                         }
                     }
