@@ -3,7 +3,7 @@ use darling::FromMeta;
 #[derive(Debug, Default, FromMeta)]
 pub struct Attributes {
     #[darling(default = "default_cmd")]
-    pub cmd: String,
+    pub cmd:      String,
     #[darling(default)]
     pub no_panic: bool,
 }

@@ -172,7 +172,7 @@ impl BlockBuilder {
         let args = self
             .args
             .into_iter()
-            .map(|arg|
+            .map(|arg| {
                 env_names
                     .iter()
                     .enumerate()
@@ -189,7 +189,7 @@ impl BlockBuilder {
                             arg_tokens
                         }
                     })
-            )
+            })
             .map(|tokens| quote! { #tokens.to_string() })
             .collect::<Vec<_>>();
 
@@ -214,6 +214,7 @@ impl BlockBuilder {
         }
     }
 
+    #[rustfmt::skip]
     fn select_execute_fn(&self) -> TokenStream2 {
         use OutputType::*;
 
