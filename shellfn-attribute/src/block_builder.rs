@@ -132,7 +132,8 @@ impl BlockBuilder {
                     self.output_type = OutputType::Iter;
 
                     if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
-                        if let Some(GenericArgument::AssocType(ref binding)) = path_args.args.first()
+                        if let Some(GenericArgument::AssocType(ref binding)) =
+                            path_args.args.first()
                         {
                             if binding.ident == "Item" && is_result_type(&binding.ty) {
                                 self.inner_result = true;

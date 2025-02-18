@@ -30,10 +30,13 @@ pub fn shell(attr: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
 
-    if let Some(Stmt::Expr(Expr::Lit(ExprLit {
-        lit: Lit::Str(ref program),
-        ..
-    }), _)) = input.block.stmts.first()
+    if let Some(Stmt::Expr(
+        Expr::Lit(ExprLit {
+            lit: Lit::Str(ref program),
+            ..
+        }),
+        _,
+    )) = input.block.stmts.first()
     {
         let mut result = input.clone();
         let program = program.value();
