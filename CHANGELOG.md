@@ -1,5 +1,9 @@
 # Changelog
 
+## version 0.2.0 - 2025-02-23
+
+- refresh crate - update Rust version, dependencies, style thanks to [caspermeijn](https://github.com/caspermeijn)
+
 ## version 0.1.1 - 2019-02-16
 
 - handle fn arguments in `cmd` attribute parameter

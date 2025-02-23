@@ -1,6 +1,6 @@
 [package]
 name        = "shellfn-core"
-version     = "0.1.1"
+version     = "0.2.0"
 authors     = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 description = "Core functions for `shellfn` crate"
 license     = "MIT"

@@ -1,6 +1,6 @@
 [package]
 name          = "shellfn"
-version       = "0.1.1"
+version       = "0.2.0"
 authors       = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 description   = "Attribute-like proc macro which reduces the amount of code required to call shell commands and parse the results"
 keywords      = ["shell", "command", "bash"]
@@ -19,5 +19,5 @@ doctest = false
 path    = "src/lib.rs"
 
 [dependencies]
-shellfn-attribute = { path = "./shellfn-attribute", version = "0.1.1" }
-shellfn-core      = { path = "./shellfn-core", version = "0.1.1" }
+shellfn-attribute = { path = "./shellfn-attribute", version = "0.2.0" }
+shellfn-core      = { path = "./shellfn-core", version = "0.2.0" }
