@@ -1,5 +1,11 @@
 # Changelog
 
+## version 0.2.1 - 2026-09-04
+
+- Update edition to 2024 and dependencies to the latest versions, including `syn` and `darling` thanks to [@wta-anixe](https://github.com/wta-anixe)
+- Set MSVR to 1.88 as this is the minimum required by `darling`
+- Update contact e-mail
+
 ## version 0.2.0 - 2025-02-23
 
 - refresh crate - update Rust version, dependencies, style thanks to [caspermeijn](https://github.com/caspermeijn)
