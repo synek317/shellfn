@@ -2,7 +2,7 @@ use shellfn::shell;
 use std::error::Error;
 
 #[shell]
-fn list_modified(dir: &str) -> Result<impl Iterator<Item = String>, Box<dyn Error>> {
+fn list_modified(dir: &str) -> Result<impl Iterator<Item = String> + use<>, Box<dyn Error>> {
     r#"
     cd $DIR
     git status | grep '^\s*modified:' | awk '{print $2}'

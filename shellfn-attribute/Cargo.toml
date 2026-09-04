@@ -4,7 +4,7 @@ version     = "0.2.0"
 authors     = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 description = "Attribute macro for `shellfn` crate"
 license     = "MIT"
-edition     = "2018"
+edition     = "2024"
 
 [lib]
 doctest    = false
