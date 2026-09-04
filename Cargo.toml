@@ -1,7 +1,7 @@
 [package]
 name          = "shellfn"
-version       = "0.2.0"
-authors       = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
+version       = "0.2.1"
+authors       = ["Marcin Sas-Szymanski <synek317@gmail.com>"]
 description   = "Attribute-like proc macro which reduces the amount of code required to call shell commands and parse the results"
 keywords      = ["shell", "command", "bash"]
 categories    = ["command-line-interface", "os"]
@@ -10,6 +10,7 @@ license       = "MIT"
 repository    = "https://github.com/synek317/shellfn"
 documentation = "https://docs.rs/shellfn"
 edition       = "2024"
+rust-version  = "1.88.0"
 
 [workspace]
 members = ["shellfn-attribute", "shellfn-core"]
@@ -19,5 +20,5 @@ doctest = false
 path    = "src/lib.rs"
 
 [dependencies]
-shellfn-attribute = { path = "./shellfn-attribute", version = "0.2.0" }
-shellfn-core      = { path = "./shellfn-core", version = "0.2.0" }
+shellfn-attribute = { path = "./shellfn-attribute", version = "0.2.1" }
+shellfn-core      = { path = "./shellfn-core", version = "0.2.1" }
