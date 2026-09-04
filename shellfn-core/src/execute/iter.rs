@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::utils::{spawn, PANIC_MSG};
+use crate::utils::{PANIC_MSG, spawn};
 use itertools::Either;
 use std::error::Error as StdError;
 use std::ffi::OsStr;

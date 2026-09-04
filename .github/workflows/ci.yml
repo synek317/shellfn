@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  clippy_rust_version: '1.84'
+  clippy_rust_version: '1.88'
 
 jobs:
   test:

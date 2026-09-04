@@ -9,7 +9,7 @@ readme        = "README.md"
 license       = "MIT"
 repository    = "https://github.com/synek317/shellfn"
 documentation = "https://docs.rs/shellfn"
-edition       = "2018"
+edition       = "2024"
 
 [workspace]
 members = ["shellfn-attribute", "shellfn-core"]

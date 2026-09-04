@@ -32,7 +32,7 @@ pub fn shell(attr: TokenStream, input: TokenStream) -> TokenStream {
 
     if let Some(Stmt::Expr(
         Expr::Lit(ExprLit {
-            lit: Lit::Str(ref program),
+            lit: Lit::Str(program),
             ..
         }),
         _,

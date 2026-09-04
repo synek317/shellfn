@@ -4,7 +4,7 @@ version     = "0.2.0"
 authors     = ["Marcin Sas-Szymanski <marcin.sas-szymanski@anixe.pl>"]
 description = "Attribute macro for `shellfn` crate"
 license     = "MIT"
-edition     = "2018"
+edition     = "2024"
 
 [lib]
 doctest    = false
@@ -12,9 +12,9 @@ proc-macro = true
 path       = "src/lib.rs"
 
 [dependencies]
-syn          = { version = "2", features = ["full", "extra-traits"] }
+syn          = { version = "3", features = ["full", "extra-traits"] }
 quote        = "1"
 proc-macro2  = "1"
-darling      = "0.20"
+darling      = "0.24"
 shellwords   = "1"
 shellfn-core = { path = "../shellfn-core", version = "0.2.0" }

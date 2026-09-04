@@ -342,7 +342,7 @@ mod analyzes_return_type {
                     use super::*;
 
                     #[shell]
-                    fn script(data: &str, exit_code: u32) -> impl Iterator<Item = u32> {
+                    fn script(data: &str, exit_code: u32) -> impl Iterator<Item = u32> + use<> {
                         r#"
                         for V in $DATA; do
                             echo $V;
@@ -389,7 +389,7 @@ mod analyzes_return_type {
                     use super::*;
 
                     #[shell(no_panic)]
-                    fn script(data: &str, exit_code: u32) -> impl Iterator<Item = u32> {
+                    fn script(data: &str, exit_code: u32) -> impl Iterator<Item = u32> + use<> {
                         r#"
                         for V in $DATA; do
                             echo $V;
@@ -436,7 +436,7 @@ mod analyzes_return_type {
                     fn script(
                         data: &str,
                         exit_code: u32,
-                    ) -> impl Iterator<Item = Result<u32, BoxedError>> {
+                    ) -> impl Iterator<Item = Result<u32, BoxedError>> + use<> {
                         r#"
                         for V in $DATA; do
                             echo $V;
@@ -483,7 +483,7 @@ mod analyzes_return_type {
                     fn script(
                         data: &str,
                         exit_code: u32,
-                    ) -> impl Iterator<Item = Result<u32, BoxedError>> {
+                    ) -> impl Iterator<Item = Result<u32, BoxedError>> + use<> {
                         r#"
                         for V in $DATA; do
                             echo $V;
@@ -542,7 +542,7 @@ mod analyzes_return_type {
                     fn script(
                         data: &str,
                         exit_code: u32,
-                    ) -> Result<impl Iterator<Item = u32>, BoxedError> {
+                    ) -> Result<impl Iterator<Item = u32> + use<>, BoxedError> {
                         r#"
                         for V in $DATA; do
                             echo $V;
@@ -594,7 +594,7 @@ mod analyzes_return_type {
                     fn script(
                         data: &str,
                         exit_code: u32,
-                    ) -> Result<impl Iterator<Item = u32>, BoxedError> {
+                    ) -> Result<impl Iterator<Item = u32> + use<>, BoxedError> {
                         r#"
                         for V in $DATA; do
                             echo $V;
@@ -639,7 +639,7 @@ mod analyzes_return_type {
                 fn script(
                     data: &str,
                     exit_code: u32,
-                ) -> Result<impl Iterator<Item = Result<u32, BoxedError>>, BoxedError>
+                ) -> Result<impl Iterator<Item = Result<u32, BoxedError>> + use<>, BoxedError>
                 {
                     r#"
                     for V in $DATA; do
@@ -651,8 +651,8 @@ mod analyzes_return_type {
                 }
 
                 #[shell(cmd = "dummy_invalid_command_123")]
-                fn invalid_script(
-                ) -> Result<impl Iterator<Item = Result<u32, BoxedError>>, BoxedError>
+                fn invalid_script()
+                -> Result<impl Iterator<Item = Result<u32, BoxedError>>, BoxedError>
                 {
                     r#"
                     invalid script iter
