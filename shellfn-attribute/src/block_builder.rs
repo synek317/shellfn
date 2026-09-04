@@ -9,14 +9,14 @@ const PROGRAM: &str = "PROGRAM";
 
 #[derive(Default)]
 pub struct BlockBuilder {
-    program:      String,
-    cmd:          String,
-    args:         Vec<String>,
-    envs:         Vec<String>,
-    output_type:  OutputType,
+    program: String,
+    cmd: String,
+    args: Vec<String>,
+    envs: Vec<String>,
+    output_type: OutputType,
     outer_result: bool,
     inner_result: bool,
-    no_panic:     bool,
+    no_panic: bool,
 }
 
 impl BlockBuilder {
@@ -48,8 +48,8 @@ impl BlockBuilder {
     }
 
     pub fn with_args<'a>(mut self, args: impl Iterator<Item = &'a FnArg>) -> Self {
-        use syn::Pat::*;
         use FnArg::*;
+        use syn::Pat::*;
 
         for arg in args {
             self.envs.push(
@@ -101,7 +101,7 @@ impl BlockBuilder {
                 t if is_vec_type(&t) => self.with_vec_return_type(&t),
                 t if is_unit_type(&t) => self.with_unit_return_type(),
                 Type::Path(_) => {}
-                t => panic!("Unsupported return type {:#?}", t),
+                t => panic!("Unsupported return type {t:#?}"),
             },
         }
         self
@@ -132,9 +132,7 @@ impl BlockBuilder {
                     self.output_type = OutputType::Iter;
 
                     if let PathArguments::AngleBracketed(path_args) = &segment.arguments {
-                        if let Some(GenericArgument::AssocType(binding)) =
-                            path_args.args.first()
-                        {
+                        if let Some(GenericArgument::AssocType(binding)) = path_args.args.first() {
                             if binding.ident == "Item" && is_result_type(&binding.ty) {
                                 self.inner_result = true;
                             }
@@ -182,7 +180,7 @@ impl BlockBuilder {
                             return arg_tokens;
                         }
 
-                        let pattern = format!("${}", var_name);
+                        let pattern = format!("${var_name}");
 
                         if arg.contains(&pattern) {
                             quote! { #arg_tokens.replace(#pattern, &envs[#i].1) }

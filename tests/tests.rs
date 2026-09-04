@@ -651,8 +651,8 @@ mod analyzes_return_type {
                 }
 
                 #[shell(cmd = "dummy_invalid_command_123")]
-                fn invalid_script(
-                ) -> Result<impl Iterator<Item = Result<u32, BoxedError>>, BoxedError>
+                fn invalid_script()
+                -> Result<impl Iterator<Item = Result<u32, BoxedError>>, BoxedError>
                 {
                     r#"
                     invalid script iter

@@ -18,6 +18,6 @@ print(json.dumps(obj, indent=indent, sort_keys=sort_keys))
 fn main() -> Result<(), Box<dyn Error>> {
     let json = r#"{"foo": 42, "bar": { "baz": 10, "qux": [1, 2, 3]}}"#;
     let pretty_json = pretty_json(json, 2, false)?;
-    println!("{}", pretty_json);
+    println!("{pretty_json}");
     Ok(())
 }

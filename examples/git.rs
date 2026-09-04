@@ -11,7 +11,7 @@ fn list_modified(dir: &str) -> Result<impl Iterator<Item = String> + use<>, Box<
 
 fn main() -> Result<(), Box<dyn Error>> {
     for modified in list_modified(".")? {
-        println!("You have modified the file: {}", modified);
+        println!("You have modified the file: {modified}");
     }
     Ok(())
 }

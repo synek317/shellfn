@@ -1,5 +1,5 @@
 use crate::error::{Error, NeverError};
-use crate::utils::{spawn, PANIC_MSG};
+use crate::utils::{PANIC_MSG, spawn};
 use std::ffi::OsStr;
 use std::process::{Child, Output};
 
