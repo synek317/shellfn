@@ -1,11 +1,11 @@
 [package]
-name        = "shellfn-core"
-version     = "0.2.1"
-authors     = ["Marcin Sas-Szymanski <synek317@gmail.com>"]
-description = "Core functions for `shellfn` crate"
-license     = "MIT"
-edition     = "2024"
-rust-version  = "1.88.0"
+name         = "shellfn-core"
+version      = "0.2.1"
+authors      = ["Marcin Sas-Szymanski <synek317@gmail.com>"]
+description  = "Core functions for `shellfn` crate"
+license      = "MIT"
+edition      = "2024"
+rust-version = "1.88.0"
 
 [lib]
 doctest = false
