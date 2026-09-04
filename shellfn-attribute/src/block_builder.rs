@@ -56,7 +56,7 @@ impl BlockBuilder {
                 match arg {
                     Receiver(_) => "self".to_string(),
                     Typed(pat_type) => match pat_type.pat.as_ref() {
-                        Ident(ref pat_ident) => pat_ident.ident.to_string(),
+                        Ident(pat_ident) => pat_ident.ident.to_string(),
                         Wild(_) => continue,
                         _ => panic!("captured arguments with pattern other than simple Ident are not yet supported"),
                     },
@@ -71,8 +71,8 @@ impl BlockBuilder {
             ReturnType::Default => {
                 self.with_unit_return_type();
             }
-            ReturnType::Type(_, ref t) => match **t {
-                Type::Path(ref type_path) if is_result_type_path(type_path) => {
+            ReturnType::Type(_, t) => match *t {
+                Type::Path(type_path) if is_result_type_path(&type_path) => {
                     self.outer_result = true;
 
                     let args = &type_path.path.segments.last().unwrap().arguments;
@@ -80,13 +80,13 @@ impl BlockBuilder {
                     if let PathArguments::AngleBracketed(path_args) = args {
                         if let Some(arg) = path_args.args.first() {
                             match arg {
-                                GenericArgument::Type(Type::ImplTrait(ref imp)) => {
+                                GenericArgument::Type(Type::ImplTrait(imp)) => {
                                     self.with_impl_trait(imp)
                                 }
-                                GenericArgument::Type(ref t) if is_unit_type(t) => {
+                                GenericArgument::Type(t) if is_unit_type(t) => {
                                     self.with_unit_return_type();
                                 }
-                                GenericArgument::Type(ref t) if is_vec_type(t) => {
+                                GenericArgument::Type(t) if is_vec_type(t) => {
                                     self.with_vec_return_type(t);
                                 }
                                 _ => {}
@@ -94,14 +94,14 @@ impl BlockBuilder {
                         }
                     }
                 }
-                Type::ImplTrait(ref imp) => {
+                Type::ImplTrait(imp) => {
                     self.outer_result = false;
-                    self.with_impl_trait(imp);
+                    self.with_impl_trait(&imp);
                 }
-                ref t if is_vec_type(t) => self.with_vec_return_type(t),
-                ref t if is_unit_type(t) => self.with_unit_return_type(),
+                t if is_vec_type(&t) => self.with_vec_return_type(&t),
+                t if is_unit_type(&t) => self.with_unit_return_type(),
                 Type::Path(_) => {}
-                ref t => panic!("Unsupported return type {:#?}", t),
+                t => panic!("Unsupported return type {:#?}", t),
             },
         }
         self
@@ -114,11 +114,11 @@ impl BlockBuilder {
     fn with_vec_return_type(&mut self, typ: &Type) {
         self.output_type = OutputType::Vec;
 
-        if let Type::Path(ref type_path) = typ {
+        if let Type::Path(type_path) = typ {
             let args = &type_path.path.segments.last().unwrap().arguments;
 
             if let PathArguments::AngleBracketed(path_args) = args {
-                if let Some(GenericArgument::Type(ref t)) = path_args.args.first() {
+                if let Some(GenericArgument::Type(t)) = path_args.args.first() {
                     self.inner_result = is_result_type(t);
                 }
             }
@@ -126,13 +126,13 @@ impl BlockBuilder {
     }
 
     fn with_impl_trait(&mut self, imp: &TypeImplTrait) {
-        if let Some(TypeParamBound::Trait(ref bound)) = imp.bounds.first() {
+        if let Some(TypeParamBound::Trait(bound)) = imp.bounds.first() {
             if let Some(segment) = bound.path.segments.first() {
                 if segment.ident == "Iterator" {
                     self.output_type = OutputType::Iter;
 
-                    if let PathArguments::AngleBracketed(ref path_args) = segment.arguments {
-                        if let Some(GenericArgument::AssocType(ref binding)) =
+                    if let PathArguments::AngleBracketed(path_args) = &segment.arguments {
+                        if let Some(GenericArgument::AssocType(binding)) =
                             path_args.args.first()
                         {
                             if binding.ident == "Item" && is_result_type(&binding.ty) {

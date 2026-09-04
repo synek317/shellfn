@@ -1,15 +1,15 @@
 use syn::{Type, TypePath};
 
 pub fn is_result_type(typ: &Type) -> bool {
-    if let Type::Path(ref type_path) = *typ {
-        is_path_to("Result", type_path)
+    if let Type::Path(type_path) = typ {
+        is_path_to("Result", &type_path)
     } else {
         false
     }
 }
 
 pub fn is_unit_type(typ: &Type) -> bool {
-    if let Type::Tuple(ref tuple) = typ {
+    if let Type::Tuple(tuple) = typ {
         return tuple.elems.is_empty();
     }
 
@@ -17,15 +17,15 @@ pub fn is_unit_type(typ: &Type) -> bool {
 }
 
 pub fn is_vec_type(typ: &Type) -> bool {
-    if let Type::Path(ref type_path) = *typ {
-        is_vec_type_path(type_path)
+    if let Type::Path(type_path) = typ {
+        is_vec_type_path(&type_path)
     } else {
         false
     }
 }
 
 pub fn is_result_type_path(type_path: &TypePath) -> bool {
-    is_path_to("Result", type_path)
+    is_path_to("Result", &type_path)
 }
 
 pub fn is_vec_type_path(type_path: &TypePath) -> bool {
